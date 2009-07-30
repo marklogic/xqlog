@@ -20,11 +20,11 @@
  : The use of the Apache License does not indicate that this project is
  : affiliated with the Apache Software Foundation.
  :)
+xquery version "1.0-ml";
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+import module namespace xblogd = "http://www.marklogic.com/xqlog-display" at "xqlog-display.xqy";
 
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-display.xqy"
-
-if (not(is-login()))
+if (not(xblog:is-login()))
 then
   xdmp:redirect-response("login.xqy")
 else
@@ -33,7 +33,7 @@ xdmp:set-response-content-type("text/html"),
 <html xml:space="preserve">
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<title>{get-title()}</title>
+<title>{xblogd:get-title()}</title>
 </head>
 <body class="help">
 
@@ -46,22 +46,22 @@ xdmp:set-response-content-type("text/html"),
   if ($repid = "") then
     <span>
       <div class="error">The 'repid' parameter is missing</div>
-      { print-go-home() }
+      { xblogd:print-go-home() }
     </span>
   else if (not($repid castable as xs:integer)) then
     <span>
       <div class="error">The 'repid' parameter must be an integer</div>
-      { print-go-admin() }
+      { xblogd:print-go-admin() }
     </span>
   else
 
-  let $reply := get-reply(xs:integer($repid))
+  let $reply := xblog:get-reply(xs:integer($repid))
   return
 
   if (empty($reply)) then
     <span>
       <div class="error">Reply id '{ $repid }' unknown</div>
-      { print-go-home() }
+      { xblogd:print-go-home() }
     </span>
   else
 
@@ -75,7 +75,7 @@ xdmp:set-response-content-type("text/html"),
   
     <dl>
     <dt>Edit State:</dt>
-    <dd> { print-state-select("state", $reply/state) } </dd>
+    <dd> { xblogd:print-state-select("state", $reply/state) } </dd>
     </dl>
   
     <input type="submit" name="change" value="Change!"/>

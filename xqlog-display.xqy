@@ -20,104 +20,103 @@
  : The use of the Apache License does not indicate that this project is
  : affiliated with the Apache Software Foundation.
  :)
+module namespace xblogd = "http://www.marklogic.com/xqlog-display";
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
-module "http://www.w3.org/2003/05/xpath-functions"
+declare variable $app-title := ( "xqlog" );
 
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-
-define variable $app-title { "xqlog" }
-
-define function get-title() as xs:string
+declare function xblogd:get-title() as xs:string
 {
   $app-title
-}
+};
 
-define function print-user() as element()
+declare function xblogd:print-user() as element()
 {
-  if (is-login())
+  if (xblog:is-login())
   then
     <span>login:
-      <a href="login.xqy?logout=logout" title="Logout">{get-user()}</a>
+      <a href="login.xqy?logout=logout" title="Logout">{xblog:get-user()}</a>
     </span>
   else
     <a href="login.xqy" title="Login">Login</a>
-}
+};
 
-define function print-go-home() as element()
+declare function xblogd:print-go-home() as element()
 {
   <div class="go-home">
     <a href="default.xqy">Return to the main listing</a></div>
-}
+};
 
-define function print-go-admin() as element()
+declare function xblogd:print-go-admin() as element()
 {
   <div class="go-admin">
     <a href="admin.xqy">Return to the admin listing</a></div>
-}
+};
 
-define function print-intro() as element()
+declare function xblogd:print-intro() as element()*
 {
   (
   <h1 class="title">{$app-title}</h1>,
   <div class="intro">
     <p class="l">This BLOG is powered by Content Interaction Server.</p>
-    <p class="r">{print-user()}</p>
+    <p class="r">{xblogd:print-user()}</p>
   </div>
   )
-}
+};
 
-define function print-search() as element()
+declare function xblogd:print-search() as element()
 {
   <form action="search.xqy" class="search-box">
     <input type="text" name="q"/>
     <input type="submit" value="Search"/>
   </form>
-}
+};
 
-define function print-category($cat as xs:string) as element()
+declare function xblogd:print-category($cat as xs:string) as element()
 {
   <span>
     <h1>{$cat}</h1>
     {
-      for $entry in get-sorted-live-entries($cat)
-      return print-entry($entry)
+      for $entry in xblog:get-sorted-live-entries($cat)
+      return xblogd:print-entry($entry)
     }
 	<p class="return"><a href="#top">Return to top</a></p>
   </span>
-}
+};
 
 (: Takes element(log) and element(reply) :)
-define function is-new($item as element()) as xs:boolean
+declare function xblogd:is-new($item as element()) as xs:boolean
 {
-  let $threshold := xdt:dayTimeDuration("PT12H")
+  let $threshold := xs:dayTimeDuration("PT12H")
   let $threshold-moment := current-dateTime() - $threshold
   return xs:dateTime($item/date) > $threshold-moment
-}
+};
 
-define function print-entry($entry as element(entry)) as element()
+declare function xblogd:print-entry($entry as element(entry)) as element()
 {
-  let $user := get-user()
+  let $user := xblog:get-user()
   let $log := $entry/log
   let $live-replies := $entry/reply[state="live" or author=$user]
   return
   <span xml:space="preserve">
   <dl class="xqlog">
     <dt>
-      {if (is-new($log)) then <span>New!</span> else ()}
-      {print-preserving($log/title/text())}
+      {if (xblogd:is-new($log)) then <span>New!</span> else ()}
+      {xblogd:print-preserving($log/title/text())}
     </dt>
-    <dd class="log">{print-preserving($log/content/text())}</dd>
+    <dd class="log">{xblogd:print-preserving($log/content/text())}</dd>
     <dt/>
     {
       for $reply in $live-replies
-      return <dd>{if (is-new($reply)) then <span>New! </span> else ()}
-                 {print-preserving($reply/text/text())}
+      return <dd>{if (xblogd:is-new($reply)) then <span>New! </span> else ()}
+                 {xblogd:print-preserving($reply/text/text())}
       </dd>
     }
   </dl>
 
   {
-  if (is-login())
+  if (xblog:is-login())
   then
     <p class="add-reply">
       <a href="add-reply.xqy?logid={$log/@id}">Submit a new reply</a>
@@ -126,10 +125,10 @@ define function print-entry($entry as element(entry)) as element()
     ()
   }
   </span>
-}
+};
 
 
-define function print-state-select-all($name as xs:string,
+declare function xblogd:print-state-select-all($name as xs:string,
                                        $starter as xs:string) as element(select)
 {
   let $sel := <x selected="selected"/>/@selected
@@ -148,9 +147,9 @@ define function print-state-select-all($name as xs:string,
       { if ($starter = "dead") then $sel else () } dead
     </option>
   </select>
-}
+};
 
-define function print-state-select($name as xs:string,
+declare function xblogd:print-state-select($name as xs:string,
                                    $starter as xs:string) as element(select)
 {
   let $sel := <x selected="selected"/>/@selected
@@ -166,37 +165,37 @@ define function print-state-select($name as xs:string,
       { if ($starter = "dead") then $sel else () } dead
     </option>
   </select>
-}
+};
 
-define function limit-string($str as xs:string, $max as xs:integer) as xs:string
+declare function xblogd:limit-string($str as xs:string, $max as xs:integer) as xs:string
 {
   if (string-length($str) > $max) then
     concat(substring($str, 0, $max), "...")
   else
     $str
-}
+};
 
-define function print-admin-entry($entry as element(entry),
+declare function xblogd:print-admin-entry($entry as element(entry),
                                   $states as xs:string*)
 as element()
 {
   (: print the log regardless of state :)
   <dl>
-  <dt>{ print-admin-log($entry/log) }</dt>
+  <dt>{ xblogd:print-admin-log($entry/log) }</dt>
   {
     for $reply in $entry//reply[state = $states]
-    return <dd>{print-admin-reply($reply)}</dd>
+    return <dd>{xblogd:print-admin-reply($reply)}</dd>
   }
   <dd><a href="add-reply.xqy?logid={$entry/log/@id}">Submit a new reply</a></dd>
   </dl>
-}
+};
 
-define function print-admin-log($log as element(log))
+declare function xblogd:print-admin-log($log as element(log))
 as element()
 {
   let $id := data($log/@id)
-  let $title-str := limit-string(string($log/title/text()), 80)
-  let $content-str := limit-string(string($log/content/text()), 80)
+  let $title-str := xblogd:limit-string(string($log/title/text()), 80)
+  let $content-str := xblogd:limit-string(string($log/content/text()), 80)
   return
   <div>
     <span class="{$log/state/text()}">
@@ -205,44 +204,44 @@ as element()
     <br/>
     {$content-str}
   </div>
-}
+};
 
-define function print-admin-reply($reply as element(reply))
+declare function xblogd:print-admin-reply($reply as element(reply))
 as element()
 {
   let $id := data($reply/@id)
-  let $str := limit-string(string($reply/text/text()), 80)
+  let $str := xblogd:limit-string(string($reply/text/text()), 80)
   return
   <div class="{$reply/state/text()}">
   <a href="admin-reply.xqy?repid={$id}">Reply {$id}</a>: { $str }
   </div>
-}
+};
 
 
-define function print-preserving($texts as text()*) as item()*
+declare function xblogd:print-preserving($texts as text()*) as item()*
 {
-  print-preserve-code(string-join($texts, ""))
-}
+  xblogd:print-preserve-code(string-join($texts, ""))
+};
 
-define function print-preserve-code($str as xs:string) as item()*
+declare function xblogd:print-preserve-code($str as xs:string) as item()*
 {
   let $before-begin := substring-before($str, "<code>")
   let $after-begin := substring-after($str, "<code>")
   return
     if ($before-begin = "" and $after-begin = "")
-    then preserve-newlines($str)
+    then xblogd:preserve-newlines($str)
     else
   let $middle := substring-before($after-begin, "</code>")
   let $middle := if ($middle = "") then $after-begin else $middle
   let $after-end := substring-after($after-begin, "</code>")
-  return (preserve-newlines($before-begin),
+  return (xblogd:preserve-newlines($before-begin),
           <pre>{$middle}</pre>,
-          print-preserve-code($after-end))
-}
+          xblogd:print-preserve-code($after-end))
+};
 
-define function preserve-newlines($str as xs:string) as node()*
+declare function xblogd:preserve-newlines($str as xs:string) as xs:string*
 {
   for $line in tokenize($str, "\n")
   return ($line, <br/>)
-}
+};
 

@@ -20,26 +20,26 @@
  : The use of the Apache License does not indicate that this project is
  : affiliated with the Apache Software Foundation.
  :)
-
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-display.xqy"
+xquery version "1.0-ml";
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+import module namespace xblogd = "http://www.marklogic.com/xqlog-display" at "xqlog-display.xqy";
 
 xdmp:set-response-content-type("text/html"),
 
 <html xml:space="preserve">
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<title>{get-title()}</title>
+<title>{xblogd:get-title()}</title>
 </head>
 <body class="help">
 
-{ print-intro() }
+{ xblogd:print-intro() }
 
 <a name="top"></a>
-{ print-search() }
+{ xblogd:print-search() }
 
 {
-  if (is-login())
+  if (xblog:is-login())
   then
     <p><a href="add-log.xqy">Enter a new log entry</a></p>
   else
@@ -48,13 +48,13 @@ xdmp:set-response-content-type("text/html"),
 
 {
   (: We could also have logic to display a single category :)
-  let $names := get-live-category-names()
+  let $names := xblog:get-live-category-names()
   return
   if (empty($names)) then
     <div class="error">No 'live' entries yet</div>
   else
     for $cat in $names
-    return print-category($cat)
+    return xblogd:print-category($cat)
 }
 
 <p/>

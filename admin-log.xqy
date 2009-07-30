@@ -20,11 +20,14 @@
  : The use of the Apache License does not indicate that this project is
  : affiliated with the Apache Software Foundation.
  :)
+xquery version "1.0-ml";
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+import module namespace xblogd = "http://www.marklogic.com/xqlog-display" at "xqlog-display.xqy";
+declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-display.xqy"
+xdmp:set-response-content-type("text/html"),
 
-if (not(is-login()))
+if (not(xblog:is-login()))
 then
   xdmp:redirect-response("login.xqy")
 else
@@ -33,7 +36,7 @@ xdmp:set-response-content-type("text/html"),
 <html xml:space="preserve">
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<title>{get-title()}</title>
+<title>{xblogd:get-title()}</title>
 </head>
 <body class="help">
 
@@ -47,22 +50,22 @@ xdmp:set-response-content-type("text/html"),
   if ($logid = "") then
     <span>
       <div class="error">The 'logid' parameter is missing</div>
-      { print-go-home() }
+      { xblogd:print-go-home() }
     </span>
   else if (not($logid castable as xs:integer)) then
     <span>
       <div class="error">The 'logid' parameter must be an integer</div>
-      { print-go-home() }
+      { xblogd:print-go-home() }
     </span>
   else
 
-  let $log := get-log(xs:integer($logid))
+  let $log := xblog:get-log(xs:integer($logid))
   return
 
   if (empty($log)) then
     <span>
       <div class="error">Question id '{ $logid }' unknown</div>
-      { print-go-admin() }
+      { xblogd:print-go-admin() }
     </span>
   else
 
@@ -84,7 +87,7 @@ xdmp:set-response-content-type("text/html"),
       <dd>
       <select name="old-category">
         {
-          for $cat in get-all-category-names()
+          for $cat in xblog:get-all-category-names()
           return
           <option>
             { if ($log/category = $cat) then $sel else () } {$cat}
@@ -101,7 +104,7 @@ xdmp:set-response-content-type("text/html"),
   
     <dl>
     <dt>Edit State:</dt>
-    <dd> { print-state-select("state", $log/state) } </dd>
+    <dd> { xblogd:print-state-select("state", $log/state) } </dd>
     </dl>
   
     <input type="submit" name="change" value="Change!"/>

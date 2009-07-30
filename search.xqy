@@ -20,32 +20,33 @@
  : The use of the Apache License does not indicate that this project is
  : affiliated with the Apache Software Foundation.
  :)
+xquery version "1.0-ml";
 
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-display.xqy"
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+import module namespace xblogd = "http://www.marklogic.com/xqlog-display" at "xqlog-display.xqy";
 
 xdmp:set-response-content-type("text/html"),
 
 let $q := xdmp:get-request-field("q")
-let $entries := search-entries($q)
+let $entries := xblog:search-entries($q)
 
 return
 
 <html xml:space="preserve">
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<title>{get-title()}</title>
+<title>{xblogd:get-title()}</title>
 </head>
 <body class="help">
 
-{ print-intro() }
+{ xblogd:print-intro() }
 
 <form action="search.xqy">
   <input type="text" name="q" value="{$q}"/>
   <input type="submit" value="Search"/>
 </form>
 
-{ print-go-home() }
+{ xblogd:print-go-home() }
 
 <hr />
 <h2>Search results for "{ $q }":</h2>
@@ -53,7 +54,7 @@ return
 {
   if (empty($entries)) then <div class="error">No entries</div> else
   for $entry in $entries
-  return print-entry($entry)
+  return xblogd:print-entry($entry)
 }
 
 </body>

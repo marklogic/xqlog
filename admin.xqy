@@ -20,11 +20,12 @@
  : The use of the Apache License does not indicate that this project is
  : affiliated with the Apache Software Foundation.
  :)
+xquery version "1.0-ml";
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+import module namespace xblogd = "http://www.marklogic.com/xqlog-display" at "xqlog-display.xqy";
+declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-display.xqy"
-
-if (not(is-login()))
+if (not(xblog:is-login()))
 then
   xdmp:redirect-response("login.xqy")
 else
@@ -33,11 +34,11 @@ xdmp:set-response-content-type("text/html"),
 <html xml:space="preserve">
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<title>{get-title()}</title>
+<title>{xblogd:get-title()}</title>
 </head>
 <body class="help">
 
-{ print-intro() }
+{ xblogd:print-intro() }
 
 {
   let $state := xdmp:get-request-field("state", "all") (: default = all :)
@@ -47,17 +48,17 @@ xdmp:set-response-content-type("text/html"),
   
   <span>
     <form>
-      Limit view to state: { print-state-select-all("state", $state) }
+      Limit view to state: { xblogd:print-state-select-all("state", $state) }
       <input type="submit" value="Change State"/>
     </form>
   
     {
-      for $entry in get-entries-in-states($states)
-      return print-admin-entry($entry, $states)
+      for $entry in xblog:get-entries-in-states($states)
+      return xblogd:print-admin-entry($entry, $states)
     }
   
     {
-      print-go-home()
+      xblogd:print-go-home()
     }
   </span>
 }

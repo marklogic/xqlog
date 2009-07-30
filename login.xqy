@@ -1,8 +1,9 @@
 (:
  : Copyright (c) 2004 raff@aromatic.org
  :)
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-lib.xqy"
-import module "http://www.w3.org/2003/05/xpath-functions" at "xqlog-display.xqy"
+xquery version "1.0-ml";
+import module namespace xblog = "http://www.marklogic.com/xqlog-lib" at "xqlog-lib.xqy";
+import module namespace xblogd = "http://www.marklogic.com/xqlog-display" at "xqlog-display.xqy";
 
 xdmp:set-response-content-type("text/html"),
 
@@ -27,11 +28,11 @@ else
 <html xml:space="preserve">
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
-<title>{get-title()}</title>
+<title>{xblogd:get-title()}</title>
 </head>
 <body class="help">
 
-{ print-intro() }
+{ xblogd:print-intro() }
 
 <form action="login.xqy" method="POST" class="xqlog-ask">
   <div>&#160;</div>
@@ -54,7 +55,7 @@ else
   </dl>
 </form>
 
-{ print-go-home() }
+{ xblogd:print-go-home() }
 
 </body>
 </html>
